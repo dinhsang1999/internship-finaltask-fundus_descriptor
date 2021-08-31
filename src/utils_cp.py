@@ -1,5 +1,6 @@
 import pandas as pd
-import os,sys
+import os
+import sys
 import numpy as np
 import torch
 from sklearn.model_selection import train_test_split
@@ -35,7 +36,6 @@ class EarlyStopping:
         self.path = path
         self.trace_func = trace_func
         self.mode = monitor
-        
 
     def __call__(self, values, model):
 
@@ -87,7 +87,7 @@ class EarlyStopping:
             self.val_acc_max = values
 
 
-def preprocess(data_dir, csv_dir,train_val_split=0.3,train_val_split_status=True):
+def preprocess(data_dir, csv_dir, train_val_split=0.3, train_val_split_status=True):
     """
     Get training dataframe and testing dataframe from image directory and
     csv description file.
@@ -115,10 +115,10 @@ def preprocess(data_dir, csv_dir,train_val_split=0.3,train_val_split_status=True
             total_name, total_label, test_size=train_val_split, random_state=42)
 
         data_train = {'Name': name_train,
-                    'Label': label_train}
+                      'Label': label_train}
 
         data_test = {'Name': name_test,
-                    'Label': label_test}
+                     'Label': label_test}
 
         df_train = pd.DataFrame(data_train)
         df_test = pd.DataFrame(data_test)
@@ -128,19 +128,24 @@ def preprocess(data_dir, csv_dir,train_val_split=0.3,train_val_split_status=True
         return df_train, df_test
     if train_val_split_status == False:
         data_train = {'Name': total_name,
-                    'Label': total_label} 
+                      'Label': total_label}
 
         df_train = pd.DataFrame(data_train)
 
         return df_train
 
 # Block
+
+
 def blockPrint():
     sys.stdout = open(os.devnull, 'w')
 
 # Restore
+
+
 def enablePrint():
     sys.stdout = sys.__stdout__
+
 
 def calculate_metrics(out_gt, out_pred):
     """

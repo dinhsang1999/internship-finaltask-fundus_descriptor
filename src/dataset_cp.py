@@ -53,25 +53,28 @@ class CustomImageDataset(Dataset):
             label = self.target_transform(label)
         return image, label
 
+
 def check_size_crop_square(image):
 
     if image.shape[1] != image.shape[2]:
         if image.shape[1] < image.shape[2]:
-            rateCrop=image.shape[1]
+            rateCrop = image.shape[1]
         else:
-            rateCrop=image.shape[2]
+            rateCrop = image.shape[2]
 
         transforms_size = transforms.Compose([
-        transforms.CenterCrop([round(image.shape[1]*0.95),round(image.shape[2]*0.95)]),
-        transforms.CenterCrop(round(rateCrop*0.95))  
+            transforms.CenterCrop(
+                [round(image.shape[1]*0.95), round(image.shape[2]*0.95)]),
+            transforms.CenterCrop(round(rateCrop*0.95))
         ])
-        
+
         tranformation = transforms_size(image)
-        
-    else: tranformation = image    
-        
-    return tranformation 
-    
+
+    else:
+        tranformation = image
+
+    return tranformation
+
 # def flip_transform(imgdir,label):
 #     img = imread(imgdir)
 #     x = np.array(img)

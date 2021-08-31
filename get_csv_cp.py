@@ -33,7 +33,7 @@ for item in data:
                 label = 'peripheral'
             else:
                 label = ''
-            
+
             if 'train-cp' in list_choices:
                 train_val_predict = 'train'
             elif 'val-cp' in list_choices:
@@ -43,7 +43,7 @@ for item in data:
         else:
             label = ''
             train_val_predict = 'predict_need'
-    
+
     else:
         label = ''
         train_val_predict = 'predict_need'
@@ -62,4 +62,3 @@ df = pd.DataFrame(data_for_pandas)
 print(df.head())
 df.to_csv('./csvConvert/cp_train.csv')
 print("save csv successfull")
-

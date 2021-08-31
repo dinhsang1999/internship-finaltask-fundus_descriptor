@@ -1,3 +1,4 @@
+from pprint import pprint
 from src.model import NeuralNetwork
 import torch
 from torchvision import transforms
@@ -10,7 +11,6 @@ from torchvision.io import read_image
 from PIL import Image
 from PIL import ImageFile
 ImageFile.LOAD_TRUNCATED_IMAGES = True
-from pprint import pprint
 
 
 class Predicter():
@@ -18,7 +18,7 @@ class Predicter():
     Predict the label of new image base on trained model
     '''
 
-    def __init__(self,path_predict, model_type='resnet18', using_gpu=True):
+    def __init__(self, path_predict, model_type='resnet18', using_gpu=True):
         """
         Construct the predicter object.
 
@@ -53,7 +53,7 @@ class Predicter():
         self.transform = transforms.Compose([
             transforms.Resize(
                 (int(self.width),
-                int(self.height))),
+                 int(self.height))),
             transforms.ConvertImageDtype(torch.float)])
 
         self.image_path = path_predict
