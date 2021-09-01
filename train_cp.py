@@ -31,10 +31,9 @@ def train():
     model, optimizer, loss_fn, device = trainer.setup_training()
 
     # Loop through epochs
-    # epochs#TODO: should choose epoch % 2 = 1. Exp: 7,8,9,11,15,....
-    for epoch in range(trainer.EPOCHS):
+    for epoch in range(trainer.EPOCHS):  # epochs#TODO: should choose epoch % 2 = 1. Exp: 2,5,8,11,14,....
         # Train model
-        if trainer.TRAIN_VAL_SPLIT_STATUS:
+        if  trainer.TRAIN_VAL_SPLIT_STATUS:
             trainer.epoch_train(
                 train_dataloader,
                 model,
@@ -42,9 +41,9 @@ def train():
                 optimizer,
                 device,
                 epoch,
-                use_checkpoint=False,
-                best_model=False
-            )
+                use_checkpoint = False,
+                best_model = False
+                )
 
             # Calculate validation loss and accuracy score
             trainer.epoch_evaluate(
@@ -53,9 +52,9 @@ def train():
                 loss_fn,
                 device,
                 epoch,
-                use_checkpoint=False,
+                use_checkpoint = False,
                 best_model=True
-            )
+                )
         else:
             trainer.epoch_train(
                 train_dataloader,
@@ -64,18 +63,16 @@ def train():
                 optimizer,
                 device,
                 epoch,
-                use_checkpoint=False,
-                best_model=True
-            )
-
-        if epoch % 2 == 0:
+                use_checkpoint = False,
+                best_model = True
+                )
+        
+        if epoch%3 == 0:
             # Set up DataLoader
             if trainer.TRAIN_VAL_SPLIT_STATUS:
-                train_dataloader, test_dataloader = trainer.setup_training_data(
-                    type_transform=False)
+                train_dataloader, test_dataloader = trainer.setup_training_data(type_transform=False)
             else:
-                train_dataloader = trainer.setup_training_data(
-                    type_transform=False)
+                train_dataloader = trainer.setup_training_data(type_transform=False)
 
         if trainer.early_stop():
             print("EARLY STOPING!!!")

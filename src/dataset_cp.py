@@ -14,15 +14,13 @@ class CustomImageDataset(Dataset):
         image_size = [224, 224]
 
         image_transformation_1 = [
-            transforms.Resize(image_size),
-            transforms.ConvertImageDtype(torch.float)
+            transforms.Resize(image_size)
         ]
 
         image_transformation_2 = [
             transforms.Resize(image_size),
-            transforms.ConvertImageDtype(torch.float),
-            transforms.RandomHorizontalFlip(p=0.4),
-            transforms.RandomVerticalFlip(p=0.3)
+            transforms.RandomHorizontalFlip(p=0.6),
+            transforms.RandomVerticalFlip(p=0.6)
         ]
 
         image_transformation_1 = transforms.Compose(image_transformation_1)
@@ -42,7 +40,10 @@ class CustomImageDataset(Dataset):
     def __getitem__(self, idx):
         img_path = os.path.join(self.img_dir, self.img_labels.iloc[idx, 0])
         image = read_image(img_path)
-        image = check_size_crop_square(image)
+        
+        if self.img_labels.iloc[idx, 2] == 1:
+            image = check_size_crop_square(image)
+
         label = self.img_labels.iloc[idx, 1]
         if self.type_transform:
             if self.first_:
@@ -53,28 +54,25 @@ class CustomImageDataset(Dataset):
             label = self.target_transform(label)
         return image, label
 
-
 def check_size_crop_square(image):
-
     if image.shape[1] != image.shape[2]:
-        if image.shape[1] < image.shape[2]:
-            rateCrop = image.shape[1]
-        else:
-            rateCrop = image.shape[2]
 
+        if image.shape[1] < image.shape[2]:
+            rateCrop=image.shape[1]
+        else:
+            rateCrop=image.shape[2]
+        
         transforms_size = transforms.Compose([
-            transforms.CenterCrop(
-                [round(image.shape[1]*0.95), round(image.shape[2]*0.95)]),
-            transforms.CenterCrop(round(rateCrop*0.95))
+        transforms.CenterCrop(size=[round(0.95*image.shape[1]),round(0.95*image.shape[2])]),
+        transforms.CenterCrop(round(rateCrop*0.95))  
         ])
 
         tranformation = transforms_size(image)
 
-    else:
-        tranformation = image
-
-    return tranformation
-
+    else: tranformation = image
+        
+    return tranformation 
+    
 # def flip_transform(imgdir,label):
 #     img = imread(imgdir)
 #     x = np.array(img)

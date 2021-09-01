@@ -34,21 +34,17 @@ class CustomTrainer(Trainer):
 
         # Get train and test dataframe from data directory
         if self.TRAIN_VAL_SPLIT_STATUS:
-            self.df_train, self.df_test = preprocess(
-                self.DATA_DIR, self.CSV_DIR, train_val_split=self.TRAIN_VAL_SPLIT, train_val_split_status=self.TRAIN_VAL_SPLIT_STATUS)
+            self.df_train, self.df_test = preprocess(self.DATA_DIR, self.CSV_DIR,train_val_split=self.TRAIN_VAL_SPLIT,train_val_split_status=self.TRAIN_VAL_SPLIT_STATUS)
         else:
-            self.df_train = preprocess(self.DATA_DIR, self.CSV_DIR, train_val_split=self.TRAIN_VAL_SPLIT,
-                                       train_val_split_status=self.TRAIN_VAL_SPLIT_STATUS)
+            self.df_train = preprocess(self.DATA_DIR, self.CSV_DIR,train_val_split=self.TRAIN_VAL_SPLIT,train_val_split_status=self.TRAIN_VAL_SPLIT_STATUS)
         # Save best model
         self.best_acc_train = 0
         self.best_loss_train = 0
         self.best_acc_val = 0
         self.best_loss_val = 0
-        self.path = os.path.join(
-            self.MODEL_DIR, "trial-" + self.TRIAL + ".pth")
+        self.path = os.path.join(self.MODEL_DIR, "trial-" + self.TRIAL + ".pth")
         # Initiate early stoppping object
-        self.early_stopping = EarlyStopping(
-            verbose=True, patience=self.PATIENCE, path=self.path, monitor=self.EARLY_STOPING)
+        self.early_stopping=EarlyStopping(verbose=True, patience=self.PATIENCE, path= self.path, monitor=self.EARLY_STOPING)
         self.writer = SummaryWriter(
             log_dir=os.path.join(
                 "log",
@@ -57,7 +53,7 @@ class CustomTrainer(Trainer):
                 "-optim-" + self.OPTIMIZER +
                 "-lr-" + str(self.LEARNING_RATE)))
 
-    def epoch_train(self, dataloader, model, loss_fn, optimizer, device, epoch, use_checkpoint=False, best_model=False):
+    def epoch_train(self, dataloader, model, loss_fn, optimizer, device, epoch,use_checkpoint=False,best_model=False):
         """
         Train the model one time (forward propagation, loss calculation,
             back propagation, update parameters)
@@ -79,10 +75,10 @@ class CustomTrainer(Trainer):
         correct = 0
         total_train = 0
         avr_acc = 0
-
+        
         out_pred = torch.FloatTensor().to(device)
         out_gt = torch.FloatTensor().to(device)
-
+        
         print("Epoch:", epoch)
         # Loop through samples in data loader
         for batch, (X, y) in enumerate(dataloader):
@@ -96,7 +92,7 @@ class CustomTrainer(Trainer):
 
             # Update prediction values
             out_pred = torch.cat((out_pred, pred), 0)
-
+            
             # Compute loss
             y = y.type(torch.long)
             loss = loss_fn(pred, y)
@@ -126,31 +122,31 @@ class CustomTrainer(Trainer):
         if use_checkpoint:
             # Earlystoping
             if self.EARLY_STOPING == 'val_loss':
-                value = train_loss / (batch + 1)
+                value=train_loss / (batch + 1)
             elif self.EARLY_STOPING == 'val_accuracy':
-                value = correct / len(dataloader.dataset)
-            else:
+                value=correct / len(dataloader.dataset)
+            else: 
                 value = None
-
+            
             if value is not None:
-                self.early_stopping.__call__(value, model)
+                self.early_stopping.__call__(value,model)
             else:
                 print(f'Save model to {self.path}')
                 torch.save(model.state_dict(), self.path)
-
+        
         if best_model:
             if (accuracy > self.best_acc_train):
                 print(f'Training accuracy increased ({self.best_acc_train:.3f} --> {accuracy:.3f}).  Saving model to {self.path}')
                 self.best_acc_train = accuracy
                 torch.save(model.state_dict(), self.path)
                 self.best_loss_train = (train_loss / (batch + 1))
-            elif((train_loss / (batch + 1)) < self.best_loss_train) and (accuracy > self.best_acc_train-0.002):
+            elif((train_loss / (batch + 1))<self.best_loss_train) and (accuracy>self.best_acc_train-0.002):
                 print(f'Training loss increased ({self.best_loss_train:.6f} --> {(train_loss / (batch + 1)):.6f}).  Saving model to {self.path}')
                 self.best_loss_train = (train_loss / (batch + 1))
                 torch.save(model.state_dict(), self.path)
             else:
-                print(
-                    'Accuracy_train and Loss_train not improve! the model will not save')
+                print('Accuracy_train and Loss_train not improve! the model will not save')
+
 
         self.writer.add_scalar("Loss/train", train_loss / (batch + 1), epoch)
         self.writer.add_scalar("Accuracy/train", accuracy, epoch)
@@ -160,7 +156,8 @@ class CustomTrainer(Trainer):
         self.writer.add_scalar("Sensitivity/train", sensitivity, epoch)
         self.writer.add_scalar("Specificity/train", specificity, epoch)
 
-    def epoch_evaluate(self, dataloader, model, loss_fn, device, epoch=0, use_checkpoint=False, best_model=False):
+        
+    def epoch_evaluate(self, dataloader, model, loss_fn, device, epoch=0, use_checkpoint= False,best_model=False):
         """
         Evaluate the model one time (forward propagation, loss calculation)
 
@@ -179,7 +176,7 @@ class CustomTrainer(Trainer):
 
         # Initialize loss and correct prediction variables
         test_loss, correct = 0, 0
-
+        
         # Total torch tensor of all prediction and groundtruth
         out_pred = torch.FloatTensor().to(device)
         out_gt = torch.FloatTensor().to(device)
@@ -199,7 +196,7 @@ class CustomTrainer(Trainer):
 
                 # Compute prediction
                 pred = model(X.float())
-
+                
                 # Update groundtruth values
                 out_gt = torch.cat((out_gt, y), 0)
 
@@ -222,33 +219,33 @@ class CustomTrainer(Trainer):
         #test_loss /= num_batches
         print(
             'Validation set: Average loss: {:.6f}, Average accuracy: {:.0f}/{} ({:.3f}%)\n'.format(
-                avg_loss,
-                correct,
-                len(dataloader.dataset),
+                avg_loss, 
+                correct, 
+                len(dataloader.dataset), 
                 100. * accuracy))
 
         if use_checkpoint:
             # Earlystoping
             if self.EARLY_STOPING == 'val_loss':
-                value = avg_loss
+                value=avg_loss
             elif self.EARLY_STOPING == 'val_accuracy':
-                value = correct / len(dataloader.dataset)
-            else:
+                value=correct / len(dataloader.dataset)
+            else: 
                 value = None
-
+            
             if value is not None:
-                self.early_stopping.__call__(value, model)
+                self.early_stopping.__call__(value,model)
             else:
                 print(f'Save model to {self.path}')
                 torch.save(model.state_dict(), self.path)
-
+        
         if best_model:
             if (accuracy > self.best_acc_val):
                 print(f'Validate accuracy increased ({self.best_acc_val:.3f} --> {accuracy:.3f}).  Saving model to {self.path}')
                 self.best_acc_val = accuracy
                 torch.save(model.state_dict(), self.path)
                 self.best_loss_val = avg_loss
-            elif(avg_loss < self.best_loss_val) and (accuracy > self.best_acc_val-0.002):
+            elif(avg_loss<self.best_loss_val) and (accuracy>self.best_acc_val-0.002):
                 print(f'Validate loss increased ({self.best_loss_val:.6f} --> {avg_loss:.6f}).  Saving model to {self.path}')
                 self.best_loss_train = avg_loss
                 torch.save(model.state_dict(), self.path)
@@ -263,11 +260,13 @@ class CustomTrainer(Trainer):
         self.writer.add_scalar("F1_score/test", f1_score, epoch)
         self.writer.add_scalar("Sensitivity/test", sensitivity, epoch)
         self.writer.add_scalar("Specificity/test", specificity, epoch)
-
+        
+        
+        
     def early_stop(self):
         return self.early_stopping.early_stop
 
-    def setup_training_data(self, type_transform=True):
+    def setup_training_data(self,type_transform=True):
         """
         Setup training data. Return data loaders of test and train set
         for training preparation.
@@ -347,7 +346,7 @@ class CustomTrainer(Trainer):
         model.to(device)
 
         print("Using architecture: " + self.ARCHITECTURE + " with optimizer: " +
-              self.OPTIMIZER + " and learning rate: " + str(self.LEARNING_RATE))
+                self.OPTIMIZER + " and learning rate: " + str(self.LEARNING_RATE))
         print('Setup training successful')
 
         return model, optimizer, loss_fn, device

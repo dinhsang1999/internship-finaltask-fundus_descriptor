@@ -4,8 +4,8 @@
 	"PREDICT_IMAGE_PATH": "samples/central_1.png",
 	"CSV_DIR": "csvConvert/train_cp.csv",
 	
-	"EPOCHS": 15,
-	"BATCH_SIZE": 104,
+	"EPOCHS": 30,
+	"BATCH_SIZE": 100,
 	
 	"EARLY_STOPING": "val_accuracy",
 	"PATIENCE": 10,
