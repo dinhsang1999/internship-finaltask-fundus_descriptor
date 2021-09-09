@@ -1,0 +1,26 @@
+{
+	"DATA_DIR": "./data/",
+	"MODEL_DIR": "./models",
+	"PREDICT_IMAGE_PATH": "data/11232.png",
+	"CSV_DIR_TRAIN": "csvConvert/pseudolabel_done.csv",
+	"CSV_DIR_TEST": "csvConvert/val_odm.csv",
+	
+	"EPOCHS": 20,
+	"BATCH_SIZE": 128,
+	
+	"EARLY_STOPING": "val_accuracy",
+	"PATIENCE": 10,
+
+	"TRAIN_VAL_SPLIT_STATUS": false,
+	"TRAIN_VAL_SPLIT": 0.2,
+
+	"VAL_MODE": false,
+	"PREDICT_MODE": false,
+	
+	"TRANSFORM_IMAGE":false,
+
+	"TRIAL": "test-1",
+	"ARCHITECTURE": "resnet18",
+	"LEARNING_RATE": 0.001,
+	"OPTIMIZER": "adam"
+}
