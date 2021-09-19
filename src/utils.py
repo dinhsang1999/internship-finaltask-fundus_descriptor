@@ -1,9 +1,11 @@
 import pandas as pd
-import os,sys
+import os
+import sys
 import numpy as np
 import torch
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import roc_auc_score, accuracy_score, precision_score, recall_score, f1_score
+from sklearn.metrics import roc_auc_score, accuracy_score, precision_score, recall_score, f1_score, jaccard_score
+
 
 class EarlyStopping:
     """Early stops the training if validation loss and validation accuracy don't improve after a given patience."""
@@ -35,7 +37,6 @@ class EarlyStopping:
         self.path = path
         self.trace_func = trace_func
         self.mode = monitor
-        
 
     def __call__(self, values, model):
 
@@ -87,7 +88,7 @@ class EarlyStopping:
             self.val_acc_max = values
 
 
-def preprocess(data_dir, csv_dir,train_val_split=0.3,train_val_split_status=False):
+def preprocess(data_dir, csv_dir, train_val_split=0.3, train_val_split_status=False):
     """
     Get training dataframe and testing dataframe from image directory and
     csv description file.
@@ -111,7 +112,7 @@ def preprocess(data_dir, csv_dir,train_val_split=0.3,train_val_split_status=Fals
     list_odm = init_dataframe['label_odm']
 
     total_list_label = []
-    #central-peri-left-right-od-macula-null
+    # central-peri-left-right-od-macula-null
 
     for idx in range(len(list_id)):
         list_label = []
@@ -140,7 +141,7 @@ def preprocess(data_dir, csv_dir,train_val_split=0.3,train_val_split_status=Fals
             list_label.append(1)
         else:
             list_label.append(0)
-        
+
         if list_odm[idx] == 'macula':
             list_label.append(1)
         else:
@@ -150,42 +151,44 @@ def preprocess(data_dir, csv_dir,train_val_split=0.3,train_val_split_status=Fals
             list_label.append(1)
         else:
             list_label.append(0)
-        
+
         total_list_label.append(list_label)
 
-    # if train_val_split_status:
-    #     name_train, name_test, label_train, label_test,src_train,src_test = train_test_split(
-    #         total_name, total_label,total_src, test_size=train_val_split, random_state=42)
+    if train_val_split_status:
+        name_train, name_test, label_train, label_test, src_train, src_test = train_test_split(
+            list_id, total_list_label, list_src, test_size=train_val_split, random_state=42)
 
-    #     data_train = {'Name': name_train,
-    #                 'Label': label_train,
-    #                 'Source':src_train}
+        data_train = {'Name': name_train,
+                      'Label': label_train,
+                      'Source': src_train}
 
-    #     data_test = {'Name': name_test,
-    #                 'Label': label_test,
-    #                 'Source':src_test}
+        data_test = {'Name': name_test,
+                     'Label': label_test,
+                     'Source': src_test}
 
-    #     df_train = pd.DataFrame(data_train)
-    #     df_test = pd.DataFrame(data_test)
+        df_train = pd.DataFrame(data_train)
+        df_test = pd.DataFrame(data_test)
 
-    #     return df_train, df_test
+        return df_train, df_test
+
     if train_val_split_status == False:
         data = {'Name': list_id,
-                    'Label': total_list_label,
-                        'src': list_src} 
+                'Label': total_list_label,
+                'src': list_src}
         df_data = pd.DataFrame(data)
         return df_data
-        
 
-    
 
 # Block
 def blockPrint():
     sys.stdout = open(os.devnull, 'w')
 
 # Restore
+
+
 def enablePrint():
     sys.stdout = sys.__stdout__
+
 
 def calculate_metrics(out_gt, out_pred):
     """
@@ -202,8 +205,10 @@ def calculate_metrics(out_gt, out_pred):
         f1_score (float)    : F1 Score
         sensitivity (float) : Sensitivity
         specificity (float) : Specificity
-
+        auc_score (float)   : Area under the ROC Curve
     """
+    auc_score = roc_auc_score(out_gt, out_pred)
+
     true_positives = 0.0
     true_negatives = 0.0
     false_positives = 0.0
@@ -234,140 +239,126 @@ def calculate_metrics(out_gt, out_pred):
     specificity = true_negatives / \
         (true_negatives + false_positives + np.finfo(float).eps)
 
-    return accuracy, precision, recall, f1_score, sensitivity, specificity
+    return accuracy, precision, recall, f1_score, sensitivity, specificity, auc_score
 
-def calculate_metrics_multilabel(out_gt, out_pred): #calculate_metrics_multilabel_average(out_gt, out_pred)
-    # print(out_gt)
-    # print(len(out_gt))
 
-    # print(out_pred)
-    # print(len(out_pred))
-    # accuracy_score(np.array([[0, 1], [1, 1]]), np.ones((2, 2)))
+def calculate_metrics_multilabel(out_gt, out_pred):
+
+    out_pred_temp = out_pred
+    
+    out_gt = out_gt.cpu().detach().numpy()
+    out_pred = out_pred.cpu().detach().numpy()
+
+    auc_score = roc_auc_score(
+        out_gt, out_pred, average="macro")  # average=None
+
+    for i in range(len(out_pred_temp)):
+        index_max_cp = torch.argmax(out_pred_temp[i][0:2])
+        index_max_lr = torch.argmax(out_pred_temp[i][2:4])
+        index_max_odm = torch.argmax(out_pred_temp[i][4:7])
+        out_pred_temp[i] = torch.zeros(7)
+        out_pred_temp[i][index_max_cp] = 1
+        out_pred_temp[i][index_max_lr+2] = 1
+        out_pred_temp[i][index_max_odm+4] = 1
+
+    out_pred = out_pred_temp.cpu().detach().numpy()
+
+    accuracy = jaccard_score(out_gt, out_pred, average="samples")
+    precision = precision_score(
+        out_gt, out_pred, average='macro', zero_division=1)  # average=None
+    recall = recall_score(out_gt, out_pred, average='macro',
+                          zero_division=1)  # average=None
+    micro_f1 = f1_score(out_gt, out_pred, average='micro',
+                        zero_division=1)  # average=None
+    macro_f1 = f1_score(out_gt, out_pred, average='macro',
+                        zero_division=1)  # average=None
+
+    out_gt_transpose = np.transpose(out_gt)
+    out_pred_transpose = np.transpose(out_pred)
+
+    sensitivity_list = []
+    specificity_list = []
+    for i in range(len(out_gt_transpose)):
+        _, _, _, _, sensitivity, specificity, _ = calculate_metrics(
+            out_gt_transpose[i], out_pred_transpose[i])
+        sensitivity_list.append(sensitivity)
+        specificity_list.append(specificity)
+
+    sensitivity_list = np.array(sensitivity_list)
+    specificity_list = np.array(specificity_list)
+    sensitivity = sensitivity_list.mean()
+    specificity = specificity_list.mean()
+
+    return accuracy, precision, recall, micro_f1, macro_f1, sensitivity, specificity, auc_score
+
+
+def calculate_metrics_multilabel_full(out_gt, out_pred):
+    out_pred_temp = out_pred
 
     out_gt = out_gt.cpu().detach().numpy()
     out_pred = out_pred.cpu().detach().numpy()
-    # print(out_gt)
-    # print(out_pred)
-    accuracy = accuracy_score(out_gt, out_pred)
-
-    # print(accuracy)
-
-    precision = precision_score(out_gt, out_pred, average='samples',zero_division=1)  #average=None
-    recall = recall_score(out_gt, out_pred, average='samples',zero_division=1)  #average=None
-    f1 = f1_score(out_gt, out_pred, average='samples',zero_division=1)  #average=None
-    
-    # auc_score_full = roc_auc_score(out_gt, out_pred,average=None) #average=None
-    # print(auc_score_full)
-
-    auc_score = roc_auc_score(out_gt, out_pred) #average=None
-    # print(auc_score)
-
-    
-    # print(accuracy)
-    # print(precision)
-    # print(recall)
-    # print(f1)
-    # print(auc_score)
-
-
-    out_gt_transpose = np.transpose(out_gt)
-    out_pred_transpose = np.transpose(out_pred)
-
-    # print(out_gt_transpose)
-    # print(out_pred_transpose)
-
-    sensitivity_list = []
-    specificity_list = []
-
-    for i in range(len(out_gt_transpose)):
-        _, _, _, sensitivity, specificity, _ = calculate_metrics(out_gt_transpose[i], out_pred_transpose[i])
-        sensitivity_list.append(sensitivity)
-        specificity_list.append(specificity)
-
-    sensitivity_list = np.array(sensitivity_list)
-    specificity_list = np.array(specificity_list)
-    # print(sensitivity_list.mean())
-    # print(specificity_list.mean())
-    return accuracy, precision, recall, f1, sensitivity, specificity, auc_score
-
-def calculate_metrics_multilabel_full(out_gt, out_pred):
-    # print(out_gt)
-    # print(len(out_gt))
-
-    # print(out_pred)
-    # print(len(out_pred))
-    # accuracy_score(np.array([[0, 1], [1, 1]]), np.ones((2, 2)))
-
-    out_gt = out_gt
-    out_pred = out_pred
-
-    # print(out_gt)
-    # print(out_pred)
-    # accuracy = accuracy_score(out_gt, out_pred)
-
-    # print(accuracy)
-
-    precision_list = precision_score(out_gt, out_pred, average=None,zero_division=1)  #average=None, "samples"
-    recall_list = recall_score(out_gt, out_pred, average=None,zero_division=1)  #average=None
-    f1_list = f1_score(out_gt, out_pred, average=None,zero_division=1)  #average=None
-    
-    # auc_score_full = roc_auc_score(out_gt, out_pred,average=None) #average=None
-    # print(auc_score_full)
 
     auc_score_list = roc_auc_score(out_gt, out_pred, average=None)
-    # print(accuracy)
-    # print(precision)
-    # print(recall)
-    # print(f1)
-    # print(auc_score)
 
+    for i in range(len(out_pred_temp)):
+        index_max_cp = torch.argmax(out_pred_temp[i][0:2])
+        index_max_lr = torch.argmax(out_pred_temp[i][2:4])
+        index_max_odm = torch.argmax(out_pred_temp[i][4:7])
+        out_pred_temp[i] = torch.zeros(7)
+        out_pred_temp[i][index_max_cp] = 1
+        out_pred_temp[i][index_max_lr+2] = 1
+        out_pred_temp[i][index_max_odm+4] = 1
+
+    out_pred = out_pred_temp.cpu().detach().numpy()
+
+    precision_list = precision_score(
+        out_gt, out_pred, average=None, zero_division=1)  # average=None, "samples"
+    recall_list = recall_score(
+        out_gt, out_pred, average=None, zero_division=1)  # average=None
+    f1_list = f1_score(out_gt, out_pred, average=None,
+                       zero_division=1)  # average=None
+    accuracy_list = jaccard_score(out_gt, out_pred, average=None)
 
     out_gt_transpose = np.transpose(out_gt)
     out_pred_transpose = np.transpose(out_pred)
 
-    # print(out_gt_transpose)
-    # print(out_pred_transpose)
-    accuracy_list = []
     sensitivity_list = []
     specificity_list = []
     for i in range(len(out_gt_transpose)):
-        accuracy, _, _, _, sensitivity, specificity, _ = calculate_metrics(out_gt_transpose[i], out_pred_transpose[i])
-        accuracy_list.append(accuracy)
+        _, _, _, _, sensitivity, specificity, _ = calculate_metrics(
+            out_gt_transpose[i], out_pred_transpose[i])
         sensitivity_list.append(sensitivity)
         specificity_list.append(specificity)
 
-    accuracy_list = np.array(accuracy_list)
     sensitivity_list = np.array(sensitivity_list)
     specificity_list = np.array(specificity_list)
 
-    # print(sensitivity_list.mean())
-    # print(specificity_list.mean())
     return accuracy_list, precision_list, recall_list, f1_list, sensitivity_list, specificity_list, auc_score_list
 
+
 if __name__ == '__main__':
-    # test = EarlyStopping()
-    # preprocess('../data', '../csvConvert/pseudolabel_done.csv')
     out_y = np.array([[1., 0., 0., 1., 0., 1., 0.],
-        [1., 0., 0., 1., 1., 0., 0.],
-        [1., 0., 0., 1., 0., 1., 0.],
-        [0., 1., 1., 0., 0., 0., 0.],
-        [1., 0., 0., 1., 0., 1., 0.],
-        [1., 0., 1., 0., 0., 1., 0.],
-        [1., 0., 0., 1., 1., 0., 0.]])
+                      [1., 0., 0., 1., 1., 0., 0.],
+                      [1., 0., 0., 1., 0., 1., 0.],
+                      [0., 1., 1., 0., 0., 0., 0.],
+                      [1., 0., 0., 1., 0., 1., 0.],
+                      [1., 0., 1., 0., 0., 1., 0.],
+                      [1., 0., 0., 1., 1., 0., 0.]])
 
     out_pred = np.array([[1., 0., 0., 1., 0., 1., 0.],
-        [1., 0., 0., 1., 0., 0., 1.],
-        [1., 0., 0., 1., 0., 1., 0.],
-        [0., 1., 0., 1., 0., 0., 0.],
-        [0., 1., 0., 1., 0., 1., 1.],
-        [1., 0., 1., 0., 0., 1., 0.],
-        [1., 0., 0., 1., 1., 0., 1.]])
-    
-    accuracy_list, precision_list, recall_list, f1_list, sensitivity_list, specificity_list, auc_score_list = calculate_metrics_multilabel_full(out_y, out_pred)
-    print("accuracy",accuracy_list)
-    print("precision_list",precision_list)
-    print("recall_list",recall_list)
-    print("f1_list",f1_list)
-    print("sensitivity_list",sensitivity_list)
-    print("specificity_list",specificity_list)
-    print("auc_score_list",auc_score_list)
+                         [1., 0., 0., 1., 0., 0., 1.],
+                         [1., 0., 0., 1., 0., 1., 0.],
+                         [0., 1., 0., 1., 0., 0., 0.],
+                         [0., 1., 0., 1., 0., 1., 1.],
+                         [1., 0., 1., 0., 0., 1., 0.],
+                         [1., 0., 0., 1., 1., 0., 1.]])
+
+    accuracy_list, precision_list, recall_list, f1_list, sensitivity_list, specificity_list, auc_score_list = calculate_metrics_multilabel_full(
+        out_y, out_pred)
+    print("accuracy", accuracy_list)
+    print("precision_list", precision_list)
+    print("recall_list", recall_list)
+    print("f1_list", f1_list)
+    print("sensitivity_list", sensitivity_list)
+    print("specificity_list", specificity_list)
+    print("auc_score_list", auc_score_list)
