@@ -1,0 +1,16 @@
+data
+samples
+.ipynb_checkpoints
+
+url_and_label.csv
+src/__pycache__
+requirements_Tran.txt
+resnet18_model.pth
+best_model.pth
+get-pip.py
+cuckoo
+models
+tensor
+runs
+log
+todolist.txt

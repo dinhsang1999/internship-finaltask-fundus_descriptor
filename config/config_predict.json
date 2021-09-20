@@ -1,0 +1,27 @@
+{
+	"DATA_DIR": "./data/data",
+	"MODEL_DIR": "./models",
+	"PREDICT_IMAGE_PATH": "data/data/11209.png",
+	"CSV_DIR": "./pseudolabel_done.csv",
+
+	"EPOCHS": 1,
+	"BATCH_SIZE": 64,
+	"EARLY_STOPING": "val_accuracy",
+	"PATIENCE": 10,
+
+	"TRIAL": "54",
+	"ARCHITECTURE": "efficientnet_b0",
+	"LEARNING_RATE": 0.001,
+	"OPTIMIZER": "adam",
+
+	"USE_TRANSFOMED_DATA": false,
+	"USE_AUGMENTATION": false,
+	"ROTATE": [0,0],
+	"TRANSLATE": null,
+	"SCALE": null,
+	"WEIGHT_DECAY": 0.001,
+	"DROPOUT_RATE": 0.3,
+
+	"DATA_SOURCE": null
+
+}
