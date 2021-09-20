@@ -12,8 +12,8 @@ Set up: .csv,folder,tensorboard and download data
 ```bash
 bash download_data.sh
 ```
-*Note:* Don't worry about geting error because the code downloading data from label_studio was not work.
-I changed data path from file config, it will be work if you get clone from the sever.
+*Note:* Don't be worried if you receive an error since the code for downloading data from label studio did not function.
+I updated the data path in the file configuration; it should work if you obtain a clone from the server.
 ***
 ## *<p style='color:cyan'>Edit training configuration in file config/config.json.</p>*
 ***
@@ -21,9 +21,9 @@ I changed data path from file config, it will be work if you get clone from the 
 ```bash
 python train.py
 ```
-*It will save images and labels into "img" folder*  
+*Images and labels will be saved in the "img" folder.*  
 ***
-*To train, you need change training mode in config by replace "TRANSFORM_IMAGE": false --> true*
+*To train, alter the training mode in the configuration by replacing "TRANSFORM IMAGE": true --> false*
 *Then, run train.py again*
 ```bash
 python train.py
