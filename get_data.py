@@ -15,7 +15,6 @@ for index in range(len(url_list)):
     image_id = id_list[index]
     response = requests.get(url_list[index], headers=headers, stream=True)
     image_data = response.content
-    # response.raw.decode_content = True
     image = Image.open(io.BytesIO(image_data))
     image.save(os.path.join("data", str(image_id) + ".png"))
     print("loading " + str(index + 1) + " / " + str(len(url_list)) + " images")
