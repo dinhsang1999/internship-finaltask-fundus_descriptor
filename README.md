@@ -1,89 +1,102 @@
-# fundus-descriptor
+# Fundus-Descriptor
 
+## Requirements
+- Python >=3.7
 
-
-## Getting started
-
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
-
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
-
-## Add your files
-
-- [ ] [Create](https://gitlab.com/-/experiment/new_project_readme_content:0dfc16b77e05a5057d1dc548198817b3?https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://gitlab.com/-/experiment/new_project_readme_content:0dfc16b77e05a5057d1dc548198817b3?https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://gitlab.com/-/experiment/new_project_readme_content:0dfc16b77e05a5057d1dc548198817b3?https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
-
-```
-cd existing_repo
-git remote add origin https://gitlab.com/a2ds/ai/fundus/fundus-descriptor.git
-git branch -M main
-git push -uf origin main
+```bash
+conda create -n fundus_descriptor python=3.7
+conda activate fundus_descriptor
 ```
 
-## Integrate with your tools
+## Setup environment
+Run this script to create a virtual environment and install dependency libraries
 
-- [ ] [Set up project integrations](https://gitlab.com/-/experiment/new_project_readme_content:0dfc16b77e05a5057d1dc548198817b3?https://docs.gitlab.com/ee/user/project/integrations/)
+```bash
+pip install -r requirements.txt
+```
 
-## Collaborate with your team
+#Download data
+```bash
+bash setup_data.sh
+```
 
-- [ ] [Invite team members and collaborators](https://gitlab.com/-/experiment/new_project_readme_content:0dfc16b77e05a5057d1dc548198817b3?https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://gitlab.com/-/experiment/new_project_readme_content:0dfc16b77e05a5057d1dc548198817b3?https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://gitlab.com/-/experiment/new_project_readme_content:0dfc16b77e05a5057d1dc548198817b3?https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Automatically merge when pipeline succeeds](https://gitlab.com/-/experiment/new_project_readme_content:0dfc16b77e05a5057d1dc548198817b3?https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
+#Train model
+Fill in the config/config.json file the required configuration and run:
+```python
+python train.py
+```
+Expected Output:
+```
+Epoch: 0
+        Training batch 1 Loss: 19.729628
+        Training batch 2 Loss: 15.866058
+        Training batch 3 Loss: 17.826273
+        Training batch 4 Loss: 17.788681
+        Training batch 5 Loss: 42.941818
+        Training batch 6 Loss: 22.389496
+        Training batch 7 Loss: 47.479721
+        Training batch 8 Loss: 36.725548
+        Training batch 9 Loss: 45.582085
+        Training batch 10 Loss: 35.621620
+        Training batch 11 Loss: 34.154144
+        Training batch 12 Loss: 40.838852
+        Training batch 13 Loss: 12.401539
+        Training batch 14 Loss: 45.432705
+        Training batch 15 Loss: 40.167793
+        Training batch 16 Loss: 32.452755
+        Training batch 17 Loss: 56.421425
+        Training batch 18 Loss: 46.686169
+        Training batch 19 Loss: 43.404442
+        Training batch 20 Loss: 33.464497
+        Training batch 21 Loss: 49.079994
+        Training batch 22 Loss: 64.510696
+        Training batch 23 Loss: 40.696648
+Training set: Average loss: 36.594025, Average accuracy: 93.879%, AUC score: 0.993
 
-## Test and Deploy
+Validation set: Average loss: 182.907195, Average accuracy: 87.026%, AUC score: 0.972
 
-Use the built-in continuous integration in GitLab.
+Validation accuracy increased (inf --> 0.870).  Saving model to ./models/trial-80.pth
+```
 
-- [ ] [Get started with GitLab CI/CD](https://gitlab.com/-/experiment/new_project_readme_content:0dfc16b77e05a5057d1dc548198817b3?https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing(SAST)](https://gitlab.com/-/experiment/new_project_readme_content:0dfc16b77e05a5057d1dc548198817b3?https://docs.gitlab.com/ee/user/application_security/sast/)
+#Test model 
+```python
+python test.py
+```
+Expected Output:
+```
+Validation set: Average loss: 84.072955, Average accuracy: 90.961%, AUC score: 0.983
 
-***
+accuracy_list    [0.95758929 0.90104167 0.87331536 0.84175084 0.80272109 0.89595376]
+precision_list   [0.9862069  0.93010753 0.94186047 0.90252708 0.93650794 0.95975232]
+recall_list      [0.97058824 0.96648045 0.92307692 0.92592593 0.84892086 0.93093093]
+f1_list  [0.97833523 0.94794521 0.9323741  0.91407678 0.89056604 0.94512195]
+sensitivity_list         [0.97058824 0.96648045 0.92307692 0.92592593 0.84892086 0.93093093]
+specificity_list         [0.96648045 0.97058824 0.92592593 0.92307692 0.98340249 0.95486111]
+auc_score_list   [0.99560151 0.99555095 0.9699905  0.96986916 0.98189498 0.98658033]
+accuracy mean    0.9096081588835212
+precision mean   0.9428270371418931
+recall mean      0.9276538875774373
+f1_score micro   0.9421439060205581
+f1_score macro   0.9347365518925649
+sensitivity mean         0.9276538875774373
+specitivity mean         0.9540558553270012
+auc_score mean   0.9832479047209327
+```
 
-# Editing this README
+## Predict image
+Fill in the config/config_predict.json file the required configuration and run:
+```python
+python predict.py
+```
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!).  Thank you to [makeareadme.com](https://gitlab.com/-/experiment/new_project_readme_content:0dfc16b77e05a5057d1dc548198817b3?https://www.makeareadme.com/) for this template.
-
-## Suggestions for a good README
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
-
-## Name
-Choose a self-explaining name for your project.
-
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
-
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
-
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
-
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
-
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
-
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
-
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
-
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
-
-## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
-
+The `result` is a dictionary with the structure:
+```javascript
+{'prob_central': 0.9996613264083862, // Probability of fundus image is of central area 
+ 'prob_peripheral': 0.0002774616295937449, // Probability of image is of peripheral area
+ 'prob_left': 9.435890387976542e-05,  // Probability of image is of left eye
+ 'prob_right': 0.9999237060546875, // Probability of image is of right eye
+ 'prob_od': 0.0004447030369192362,  // Probability of image is optic-disc-centered
+ 'prob_macula': 0.9996280670166016,  // Probability of image is macula-centered
+ 'label': ['central', 'right', 'macula'] // Label from classifier: 'left' or 'right' or 'undetermined'
+}
+```
