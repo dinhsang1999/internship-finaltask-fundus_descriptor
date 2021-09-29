@@ -1,4 +1,11 @@
 # FUNDUS DESCRIPTOR
+
+[Link report](https://docs.google.com/document/d/1vbugw2b9EWh7bXkM7PBr6kFEPYeNwHcUF3STNiF0Efw/edit?usp=sharing)
+
+[Link slides](https://docs.google.com/presentation/d/1PIop_P-i5AGF7P158ZYKv21xdClabpDb9s_zD3odSXk/edit?usp=sharing)
+
+[Link folder of trained models](https://drive.google.com/drive/folders/1DhAM3AsWHfjrY_iZfp6hDYaj-CzcUBs7?usp=sharing)
+
 ***
 ## Requirements
 - Python >= 3.9
