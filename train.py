@@ -5,6 +5,7 @@ import os
 from src.keyboard_interrupt import keyboardInterruptHandler
 import timeit
 
+
 def train():
     """
     Train the model with configuration loaded from json file
@@ -27,11 +28,9 @@ def train():
     # Set up training details
     model, optimizer, loss_fn, device = trainer.setup_training()
 
-    
-
     # Load pretrained model
     pretrained_model_path = os.path.join(
-            trainer.MODEL_DIR, "trial-" + trainer.TRIAL + ".pth")
+        trainer.MODEL_DIR, "trial-" + trainer.TRIAL + ".pth")
     if os.path.exists(pretrained_model_path):
         # Load trained model
         model.load_state_dict(torch.load(pretrained_model_path))
@@ -55,7 +54,7 @@ def train():
             loss_fn,
             device,
             epoch,
-            use_checkpoint = True)
+            use_checkpoint=True)
         if trainer.early_stop():
             print("EARLY STOPING!!!")
             break
@@ -70,7 +69,7 @@ if __name__ == '__main__':
     start = timeit.default_timer()
     train()
     stop = timeit.default_timer()
-    print('Time: ', stop - start) 
+    print('Time: ', stop - start)
     # try:
     #     train()
     # except KeyboardInterrupt:

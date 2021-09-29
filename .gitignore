@@ -14,3 +14,9 @@ tensor
 runs
 log
 todolist.txt
+
+*.ipynb
+*.txt
+plot_transforms.py
+test_predicter.py
+get_image_labeled.py

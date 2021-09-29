@@ -15,13 +15,13 @@ class Predicter():
     Predict the label of new image base on trained model
     '''
 
-    def __init__(self, model_type='resnet18', using_gpu=True):
+    def __init__(self, model_type='resnet34', using_gpu=True):
         """
         Construct the predicter object.
 
         Args:
             model_type (str, optional): Type of model architecture.
-                Defaults to 'resnet18'.
+                Defaults to 'resnet34'.
             using_gpu (bool, optional): GPU enable option. Defaults to True.
         """
 
@@ -50,7 +50,7 @@ class Predicter():
         self.transform = transforms.Compose([
             transforms.Resize(
                 (int(self.width),
-                int(self.height))),
+                 int(self.height))),
             transforms.ToTensor(),
             transforms.Normalize(
                 [0.485, 0.456, 0.406],
@@ -78,44 +78,43 @@ class Predicter():
         image = image.view(1, *image.size()).to(self.device)
         # Result
         labels = ['central', 'peripheral', 'left', 'right', 'od', 'macula']
-        result = {'prob_central': 0, 'prob_peripheral': 0, 'prob_left': 0, 'prob_right': 0, 'prob_od': 0, 'prob_macula': 0, 'label': []}
+        result = {
+            'prob_central': 0,
+            'prob_peripheral': 0,
+            'prob_left': 0,
+            'prob_right': 0,
+            'prob_od': 0,
+            'prob_macula': 0,
+            'label': []}
 
         # Predict image
         with torch.no_grad():
+            # Forward pass
             output = self.model(image)
-            # print("output: ")
-            # print(output)
-            
-            # ps = torch.exp(output)
-            # print("ps: ")
-            # print(ps)
-            # result['prob_central'] = float(ps[0][0].item())
-            # result['prob_peripheral'] = float(ps[0][1].item())
 
+            # Decode output
             result['prob_central'] = float(output[0][0].item())
             result['prob_peripheral'] = float(output[0][1].item())
             result['prob_left'] = float(output[0][2].item())
             result['prob_right'] = float(output[0][3].item())
             result['prob_od'] = float(output[0][4].item())
-
             result['prob_macula'] = float(output[0][5].item())
 
-            # result['label'] = labels[0] if result['prob_central'] > result['prob_peripheral'] else labels[1]
+            # Derive labels
             if result['prob_central'] > result['prob_peripheral']:
                 result['label'].append(labels[0])
             else:
                 result['label'].append(labels[1])
 
-            # result['label'] = labels[0] if result['prob_central'] > result['prob_peripheral'] else labels[1]
             if result['prob_left'] > result['prob_right']:
                 result['label'].append(labels[2])
             else:
                 result['label'].append(labels[3])
 
-            if (result['prob_od'] > 0.5) or (result['prob_macula'] >0.5):
+            if (result['prob_od'] > 0.5) or (result['prob_macula'] > 0.5):
                 if (result['prob_od'] > result['prob_macula']):
                     result['label'].append(labels[4])
-                else: 
+                else:
                     result['label'].append(labels[5])
             else:
                 pass

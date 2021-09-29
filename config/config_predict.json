@@ -2,7 +2,7 @@
 	"DATA_DIR": "./data/data",
 	"MODEL_DIR": "./models",
 	"PREDICT_IMAGE_PATH": "data/data/11209.png",
-	"CSV_DIR": "./pseudolabel_done.csv",
+	"CSV_DIR": "./csv_convert/pseudolabel_done.csv",
 
 	"EPOCHS": 1,
 	"BATCH_SIZE": 64,
