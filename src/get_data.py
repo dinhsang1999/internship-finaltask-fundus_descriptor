@@ -1,25 +1,43 @@
-import pandas as pd
+# Ref: https://github.com/nsadawi/Download-Large-File-From-Google-Drive-Using-Python/blob/master/Download-Large-File-from-Google-Drive.ipynb
+
 import requests
-from PIL import Image
-import io
 import os
+import shutil
 
-url_dataframe = pd.read_csv('csvConvert/train.csv')
-url_list = url_dataframe["URL"]
-id_list = url_dataframe["ID"]
+FILE_ID = '1xZCMu7vUOIGF9FOj6CzqOyA1wIYWIhhN'
+DESTINATION = './data/data.zip'
 
-headers = {
-    "Authorization": "token 0b4e6bf83b76636c40b93f6d6da30a928f73a1bc",
-    "Cookie": "sessionid=.eJxVj82OwjAMhN_FZ1oRhyYOx73zDJVjG9pllaz6cwHx7hTEhcscZr4Zae6wjgpHcEaMGHKTXNDmgJ4bkrhvyAmJksNNYAd1unAZb7yMtfT_Vzi6HfS8LkO_zjb17ymELy-zXK28Av3lcqmt1LJMY25fSPtJ5_ZU1f5-PuzXwMDzsLW7ZBqTxOTV79V3Zzww6dmEIwdCSl0W0e1HNsNM0dC7EC2wZJ8oZ3g8AbuHS3w:1mIHCO:xyZspCdAQZBfPIhwMogioTNxfX0XTY3n6Qg9Wun4vLU"}
+def download_file_from_google_drive(id, destination):
+    URL = "https://docs.google.com/uc?export=download"
 
-for index in range(len(url_list)):
-    image_id = id_list[index]
-    response = requests.get(url_list[index], headers=headers, stream=True)
-    print(response)
-    image_data = response.content
-    print(image_data)
-    image = Image.open(io.BytesIO(image_data))
-    image.save(os.path.join("data", str(image_id) + ".png"))
-    print("loading " + str(index + 1) + " / " + str(len(url_list)) + " images")
+    session = requests.Session()
 
-print('DONE!!!')
+    response = session.get(URL, params = { 'id' : id }, stream = True)
+    token = get_confirm_token(response)
+
+    if token:
+        params = { 'id' : id, 'confirm' : token }
+        response = session.get(URL, params = params, stream = True)
+
+    save_response_content(response, destination)
+
+def get_confirm_token(response):
+    for key, value in response.cookies.items():
+        if key.startswith('download_warning'):
+            return value
+
+    return None
+
+def save_response_content(response, destination):
+    CHUNK_SIZE = 32768
+
+    with open(destination, "wb") as f:
+        for chunk in response.iter_content(CHUNK_SIZE):
+            if chunk: # filter out keep-alive new chunks
+                f.write(chunk)
+
+if __name__ == '__main__':
+    if os.path.exists('./data'):
+        shutil.rmtree('./data')
+    os.makedirs('./data')
+    download_file_from_google_drive(FILE_ID, DESTINATION)

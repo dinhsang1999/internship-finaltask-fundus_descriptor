@@ -193,33 +193,33 @@ def preprocess(data_dir, csv_dir, data_source=None):  # CTEH - EYESCAN - BAIDU
     df_train = pd.DataFrame(data_train)
     df_test = pd.DataFrame(data_test)
 
-    # print("Sample training dataframe")
-    # print(df_train.head())
-    # print()
+    print("Sample training dataframe")
+    print(df_train.head())
+    print()
 
-    # print("Training class distribution")
-    # print(df_train["Label"].value_counts())
-    # print()
+    print("Training class distribution")
+    print(df_train["Label"].value_counts())
+    print()
 
-    # print("Number of training samples")
-    # print(len(df_train))
-    # print()
+    print("Number of training samples")
+    print(len(df_train))
+    print()
 
-    # print("Sample testing dataframe")
-    # print(df_test.head())
-    # print()
+    print("Sample testing dataframe")
+    print(df_test.head())
+    print()
 
-    # print("Testing class distribution")
-    # print(df_test["Label"].value_counts())
-    # print()
+    print("Testing class distribution")
+    print(df_test["Label"].value_counts())
+    print()
 
-    # print("Number of testing samples")
-    # print(len(df_test))
-    # print()
+    print("Number of testing samples")
+    print(len(df_test))
+    print()
 
-    # print("Number of total samples")
-    # print(len(df_train) + len(df_test))
-    # print()
+    print("Number of total samples")
+    print(len(df_train) + len(df_test))
+    print()
 
     print("preprocessing complete")
     return df_train, df_test
@@ -440,8 +440,8 @@ def calculate_metrics_multilabel_full(out_gt, out_pred):
 if __name__ == '__main__':
     preprocess(
         '../data/data',
-        '../pseudolabel_done.csv',
-        data_source="EYESCAN")
+        '..//csv_convert/pseudolabel_done.csv',
+        data_source="CTEH")
 
     # out_y = np.array([[1., 0., 0., 1., 0., 1.],
     #     [1., 0., 0., 1., 1., 0.],

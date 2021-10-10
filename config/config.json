@@ -4,12 +4,12 @@
 	"PREDICT_IMAGE_PATH": "data/data/11209.png",
 	"CSV_DIR": "./csv_convert/pseudolabel_done.csv",
 
-	"EPOCHS": 20,
+	"EPOCHS": 3,
 	"BATCH_SIZE": 64,
 	"EARLY_STOPING": "val_accuracy",
 	"PATIENCE": 10,
 
-	"TRIAL": "80",
+	"TRIAL": "90",
 	"ARCHITECTURE": "efficientnet_b0",
 	"LEARNING_RATE": 0.001,
 	"OPTIMIZER": "adam",
