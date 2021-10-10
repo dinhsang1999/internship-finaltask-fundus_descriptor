@@ -9,7 +9,7 @@
 	"EARLY_STOPING": "val_accuracy",
 	"PATIENCE": 10,
 
-	"TRIAL": "54",
+	"TRIAL": "90",
 	"ARCHITECTURE": "efficientnet_b0",
 	"LEARNING_RATE": 0.001,
 	"OPTIMIZER": "adam",

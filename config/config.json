@@ -14,7 +14,7 @@
 	"LEARNING_RATE": 0.001,
 	"OPTIMIZER": "adam",
 
-	"USE_TRANSFOMED_DATA": true,
+	"USE_TRANSFOMED_DATA": false,
 	"USE_AUGMENTATION": true,
 	"ROTATE": 0,
 	"TRANSLATE": null,
