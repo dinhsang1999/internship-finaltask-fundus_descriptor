@@ -1,0 +1,27 @@
+{
+	"DATA_DIR": "/home/intern-sang/intern-sang/new_6_finalintern_trial/fundus-descriptor-trial/data",
+	"MODEL_DIR": "./models",
+	"PREDICT_IMAGE_PATH": "data/11232.png",
+	"CSV_DIR_TRAIN": "csvConvert/pseudolabel_done.csv",
+	"CSV_DIR_TEST": "csvConvert/val_odm.csv",
+	
+	"EPOCHS": 50,
+	"BATCH_SIZE": 64,
+	
+	"EARLY_STOPING": "val_accuracy",
+	"PATIENCE": 10,
+
+	"TRAIN_VAL_SPLIT_STATUS": true,
+	"TRAIN_VAL_SPLIT": 0.3,
+
+	"VAL_MODE": false,
+	"PREDICT_MODE": false,
+
+	"TRANSFORM_IMAGE":false,
+
+	"TRIAL": "ef-trans-agu-nol-2",
+	"ARCHITECTURE": "efficientnet_b0",
+	"LEARNING_RATE": 0.001,
+	"OPTIMIZER": "sgd",
+	"WEIGHDECAY": 0.001
+}
